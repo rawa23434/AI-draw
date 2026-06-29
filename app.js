@@ -705,29 +705,30 @@ window.applyMemeSignalsToChart = function(securityData) {
     window.candlestickSeries.setMarkers(allMarkers);
 
     // --- دانانی هێڵەکانی Take Profit و Stop Loss ---
-    // دۆزینەوەی کۆتا سیگناڵی کڕین بۆ کێشانی هێڵەکان
-    const lastBuySignal = newMarkers.slice().reverse().find(m => m.shape === 'arrowUp' && !m.text.includes('WHALE'));
-    if (lastBuySignal) {
-        const entryCandle = data.find(d => d.time === lastBuySignal.time);
-        if (entryCandle) {
-            const entryPrice = entryCandle.close;
-            // دۆزینەوەی جیاوازی جووڵەی نرخی مۆمەکانی پێشوو (Volatility)
-            let recentHigh = entryPrice;
-            let recentLow = entryPrice;
-            let idx = data.indexOf(entryCandle);
-            let lookbackRange = Math.max(0, idx - 15);
-            for (let i = lookbackRange; i <= idx; i++) {
-                if (data[i].high > recentHigh) recentHigh = data[i].high;
-                if (data[i].low < recentLow) recentLow = data[i].low;
-            }
-            
-            // دیاریکردنی ئامانجەکان بە پشت بەستن بە جووڵەی بازار (Volatility)
-            const atrEstimate = (recentHigh - recentLow) || (entryPrice * 0.05);
-            const targetTP = entryPrice + (atrEstimate * 2.0); // قازانجە پێشبینیکراوەکە
-            const targetSL = Math.max(0, entryPrice - (atrEstimate * 1.0)); // زەرەرە ڕێگەپێدراوەکە
+    // دانانی هێڵەکان لەسەر بنەمای نرخی ئێستا (کۆتا مۆم) نەک سیگناڵێکی کۆن
+    const currentCandle = data[data.length - 1];
+    if (currentCandle) {
+        const entryPrice = currentCandle.close;
+        // دۆزینەوەی تێکڕای جووڵەی ڕاستەقینەی بازاڕ (ATR) بۆ ئەوەی هێڵەکان تێکنەچن
+        let sumTR = 0;
+        let count = 0;
+        let lookbackRange = Math.max(1, data.length - 14);
+        for (let i = lookbackRange; i < data.length; i++) {
+            const high = data[i].high;
+            const low = data[i].low;
+            const prevClose = data[i-1].close;
+            const tr = Math.max(high - low, Math.abs(high - prevClose), Math.abs(low - prevClose));
+            sumTR += tr;
+            count++;
+        }
+        
+        // دیاریکردنی ئامانجەکان بە پشت بەستن بە جووڵەی بازاڕ (Volatility)
+        const atrEstimate = count > 0 ? (sumTR / count) : (entryPrice * 0.05);
+        const targetTP = entryPrice + (atrEstimate * 2.0); // قازانجە پێشبینیکراوەکە
+        const targetSL = Math.max(0, entryPrice - (atrEstimate * 1.5)); // زەرەرە ڕێگەپێدراوەکە
 
-            window.tpTarget = targetTP;
-            window.slTarget = targetSL;
+        window.tpTarget = targetTP;
+        window.slTarget = targetSL;
 
             // کێشانی هێڵی قازانج (Take Profit)
             window.tpLine = window.candlestickSeries.createPriceLine({
@@ -748,7 +749,6 @@ window.applyMemeSignalsToChart = function(securityData) {
                 axisLabelVisible: true,
                 title: 'SL زەرەر',
             });
-        }
     }
 
     // --- دانانی هێڵەکانی پاڵپشتی و بەرگری (Support & Resistance) ---

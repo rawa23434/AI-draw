@@ -56,6 +56,10 @@ wss.on('connection', (ws) => {
                 const bSymbol = symbol.toLowerCase();
                 binanceSocket = new WebSocket(`wss://stream.binance.com:9443/ws/${bSymbol}@kline_1h`);
 
+                binanceSocket.on('error', (err) => {
+                    console.error("Binance WS Connection Error:", err.message);
+                });
+
                 binanceSocket.on('message', (data) => {
                     if (ws.readyState === WebSocket.OPEN) {
                         ws.send(data.toString());
@@ -91,6 +95,16 @@ app.get('/api/candles', (req, res) => {
 
 // Simple In-Memory Cache for GeckoTerminal responses
 const memoryCache = {};
+
+// پاککردنەوەی کاشە بەسەرچووەکان هەموو ١٠ خولەک جارێک بۆ ڕێگریکردن لە پڕبوونی میمۆری
+setInterval(() => {
+    const now = Date.now();
+    for (const key in memoryCache) {
+        if (memoryCache[key].expiry <= now) {
+            delete memoryCache[key];
+        }
+    }
+}, 10 * 60 * 1000);
 
 // Helper to fetch JSON from a URL with caching
 function fetchWithCache(url, cacheDurationMs) {
