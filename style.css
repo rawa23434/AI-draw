@@ -1,21 +1,23 @@
 :root {
     --bg-body: #08090f;
     --text-main: #ffffff;
-    --bg-panel: #131722;
+    --bg-panel: rgba(19, 23, 34, 0.85);
     --border-color: #2a2e39;
     --bg-input: #131722;
     --text-muted: #848e9c;
-    --bg-card: #1e222d;
+    --bg-card: rgba(30, 34, 45, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.05);
 }
 
 body.light-mode {
     --bg-body: #f0f2f5;
     --text-main: #131722;
-    --bg-panel: #ffffff;
+    --bg-panel: rgba(255, 255, 255, 0.85);
     --border-color: #e0e3eb;
     --bg-input: #ffffff;
     --text-muted: #434651;
-    --bg-card: #f8f9fa;
+    --bg-card: rgba(248, 249, 250, 0.85);
+    --glass-border: rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -78,7 +80,7 @@ h1 {
     padding: 15px 35px;
     border-radius: 12px 0 0 12px;
     border: none;
-    background-color: #2962ff;
+    background: linear-gradient(135deg, #2962ff, #1952e5);
     color: white;
     font-size: 1rem;
     cursor: pointer;
@@ -87,8 +89,9 @@ h1 {
 }
 
 .search-box button:hover {
-    background-color: #1952e5;
-    box-shadow: 0 0 15px rgba(41, 98, 255, 0.3);
+    background: linear-gradient(135deg, #1952e5, #0a3bb5);
+    box-shadow: 0 4px 15px rgba(41, 98, 255, 0.4);
+    transform: translateY(-1px);
 }
 
 .main-layout {
@@ -99,12 +102,44 @@ h1 {
     margin-bottom: 20px;
 }
 
-.chart-container {
-    background-color: var(--bg-panel);
-    border: 1px solid var(--border-color);
+@media (max-width: 1200px) {
+    .main-layout {
+        grid-template-columns: 280px 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+.side-panel {
+    background: var(--bg-panel);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--glass-border);
+    padding: 15px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    margin-bottom: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.side-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+}
+
+.chart-container {
+    background: var(--bg-panel);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    padding: 15px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column; /* Stack charts vertically */
     justify-content: center;
